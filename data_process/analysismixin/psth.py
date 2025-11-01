@@ -2,13 +2,15 @@ import numpy as np
 
 from visualization.psth import plot_spike_train_with_psth
 
+from config_file import configs
+
 
 class PsthAnalysisMixin:
     def compute_psth(self, config):
         visualize_time_bias = config["visualize_time_bias"]
         visualize_duration = config["visualize_duration"]
 
-        num_rows = len(self.stimulation_init_time) // self.num_patterns
+        num_rows = len(self.stimulation_init_time) // configs.num_patterns
         bin_size = 0.001
 
         start_time_list = []
@@ -16,11 +18,11 @@ class PsthAnalysisMixin:
         centers_list = []
         rates_list = []
 
-        for pattern_idx in range(self.num_patterns):
+        for pattern_idx in range(configs.num_patterns):
             aligned_data = []
 
             for row in range(num_rows):
-                start_time = self.stimulation_init_time[row * self.num_patterns + pattern_idx] - visualize_time_bias
+                start_time = self.stimulation_init_time[row * configs.num_patterns + pattern_idx] - visualize_time_bias
                 end_time = start_time + visualize_duration
 
                 start_time_list.append(start_time)
@@ -40,7 +42,7 @@ class PsthAnalysisMixin:
             spike_train=self.spike_train,
             figure_save_path=self.figure_save_path,
             session_name=self.session_name,
-            num_patterns=self.num_patterns,
+            num_patterns=configs.num_patterns,
             start_time_list=start_time_list,
             end_time_list=end_time_list,
             centers=centers_list,

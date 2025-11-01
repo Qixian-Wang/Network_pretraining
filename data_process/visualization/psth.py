@@ -1,33 +1,19 @@
 import os
 import matplotlib.pyplot as plt
 
+from config_file import configs
 
-component = {
-    0: [0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27],
-    1: [4, 5, 6, 7, 12, 13, 14, 15, 20, 21, 22, 23, 28, 29, 30, 31],
-    2: [96, 97, 98, 99, 104, 105, 106, 107, 112, 113, 114, 115, 120, 121, 122, 123],
-    3: [100, 101, 102, 103, 108, 109, 110, 111, 116, 117, 118, 119, 124, 125, 126, 127],
-}
-
-pattern_dict = {
-    0: component[0]+component[1],
-    1: component[0]+component[2],
-    2: component[0]+component[3],
-    3: component[1]+component[2],
-    4: component[1]+component[3],
-    5: component[2]+component[3],
-}
 
 @staticmethod
-def plot_spiketrain_raster(spike_train, ax, t_start, t_stop, visualize_time_bias, pattern_idx, size=(30, 2)): 
+def plot_spiketrain_raster(spike_train, ax, t_start, t_stop, visualize_time_bias, pattern_idx): 
     spikes = spike_train.get_view(t_start, t_stop)
 
     ax.axvline(x=t_start + visualize_time_bias, color='red', linestyle='--', linewidth=2)
     ax.set_ylabel("Channel")
     ax.eventplot(spikes)
     
-    if pattern_idx in pattern_dict:
-        pattern_channels = pattern_dict[pattern_idx]
+    if pattern_idx in configs.pattern_dict:
+        pattern_channels = configs.pattern_dict[pattern_idx]
         for channel_idx in pattern_channels:
             ax.scatter(t_start+ visualize_time_bias-0.01, channel_idx, color='red', s=2, marker='o')
     
