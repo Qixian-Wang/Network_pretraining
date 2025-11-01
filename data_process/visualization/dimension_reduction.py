@@ -57,3 +57,33 @@ def plot_results_with_clusters(figure_save_path, session_name, results, num_patt
     plt.tight_layout()
     plt.savefig(os.path.join(result_path, f'{session_name}_comparison.png'), format='png', dpi=300)
     plt.close()
+
+
+def plot_silhouette_score(figure_save_path, silhouette_score_tsne, silhouette_score_pca):
+    result_path = os.path.join(figure_save_path, f"silhouette_score")
+    os.makedirs(result_path, exist_ok=True)
+    
+    if len(silhouette_score_tsne) != 0:
+        sorted_silhouette_score_tsne = sorted(silhouette_score_tsne, key=lambda score: int(''.join(filter(str.isdigit, score[0]))))
+        score_list = [score[1] for score in sorted_silhouette_score_tsne]
+        label_list = [score[0] for score in sorted_silhouette_score_tsne]
+        plt.figure(figsize=(10, 5))
+        plt.plot(label_list, score_list, label='TSNE')
+        plt.legend()
+        plt.grid()
+        plt.savefig(os.path.join(result_path, f'tsne_silhouette_score.png'), format='png', dpi=300)
+        plt.close()
+
+    
+    if len(silhouette_score_pca) != 0:
+        sorted_silhouette_score_pca = sorted(silhouette_score_pca, key=lambda score: int(''.join(filter(str.isdigit, score[0]))))
+        score_list = [score[1] for score in sorted_silhouette_score_pca]
+        label_list = [score[0] for score in sorted_silhouette_score_pca]
+        plt.figure(figsize=(10, 5))
+        plt.plot(label_list, score_list, label='PCA')
+        plt.legend()
+        plt.grid()
+        plt.savefig(os.path.join(result_path, f'pca_silhouette_score.png'), format='png', dpi=300)
+        plt.close()
+
+
