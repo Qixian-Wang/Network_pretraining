@@ -1,3 +1,5 @@
+import os
+
 from analysismixin.moving_average_firing_rate import MovingAverageFiringRateMixIn
 from analysismixin.dimension_reduction import DimensionReductionMixIn
 from analysismixin.psth import PsthAnalysisMixin
@@ -9,7 +11,6 @@ from data_io.mea_layout import OrganizeChannelsMixIn
 from visualization.correlation_matrix import plot_correlation_matrix
 from visualization.dimension_reduction import plot_silhouette_score
 from visualization.correlation_matrix import plot_correlation_matrix
-
 
 
 class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalysisMixin, PropagationAnalysisMixin, OrganizeChannelsMixIn):
@@ -24,10 +25,13 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
         self.excluded_channels = cfg["io"]["excluded_channels"]
         self.reading_channels = cfg["io"]["reading_channels"]
 
+        os.makedirs(self.figure_save_path, exist_ok=True)
+
         self.compute_firing_rate_flag = False
         self.dim_reduction_flag = False
         self.psth_flag = False
         self.correlation_matrix_flag = False
+        self.propagation_map_flag = False
 
         if self.cfg["process"]["firing_rate"]["method"] is not None:
             self.compute_firing_rate_flag = True

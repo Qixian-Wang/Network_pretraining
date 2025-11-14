@@ -3,21 +3,19 @@ import os
 import yaml
 from matplotlib import pyplot as plt
 from miv.core.datatype.spikestamps import Spikestamps
+from visualization.mea_layout import plot_mea_layout
 
+from config_file import configs
 
 class OrganizeChannelsMixIn:
-    @staticmethod
-    def _bank_encode(channel_name):
-        bank = channel_name[0].upper()
-        idx = int(channel_name[-3:])
-        base = {"A": 0, "B": 32, "C": 64, "D": 96}[bank]
-        return base + idx
-
-
     def reorganize_channels(self):
         self.sorted_channel_data = self.load_mea_data(self.mea_data_path)
+        plot_mea_layout(self.sorted_channel_data, self.figure_save_path)
 
         for dataset in self.dataset_list:
+            if len(dataset.spike_train) != len(self.sorted_channel_data):
+                raise ValueError("The number of channels in the dataset is not equal to the number of channels in the mea layout. Please check the mea layout file.")
+
             desired_sequence = [channel["idx"] for channel in self.sorted_channel_data]
             reading_channels = [idx for idx, channel in enumerate(self.sorted_channel_data) if f"{channel['chip_title']}-{channel['chip_index']}" in self.reading_channels]
 
@@ -33,16 +31,21 @@ class OrganizeChannelsMixIn:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = yaml.safe_load(f)
 
-        # 128 electrodes, 4 chips, 32 electrodes per chip
-        chip_title = ["A", "B", "C", "D"]
-        num_electrodes = 128
+        if configs.mea_type == "128_rhs":
+            # 128 electrodes, 4 chips, 32 electrodes per chip
+            chip_title = ["A", "B", "C", "D"]
+            num_electrodes = [32, 32, 32, 32]
+        
+        if configs.mea_type == "512_long":
+            chip_title = ["A", "B", "C", "D1", "D2"]
+            num_electrodes = [128, 128, 128, 64, 64]
 
         channel_data = []
         chip_index = 0
         channel_index_in_group = 0
-        for channel_index in range(num_electrodes):
+        for channel_index in range(sum(num_electrodes)):
 
-            if channel_index % 32 == 0 and channel_index != 0:
+            if channel_index % num_electrodes[chip_index] == 0 and channel_index != 0:
                 chip_index += 1
                 channel_index_in_group = 0
 
@@ -59,13 +62,3 @@ class OrganizeChannelsMixIn:
 
         return sorted_channel_data
 
-
-    def _plot_mea_layout(self):
-        plt.figure(figsize=(10, 10))
-        for channel in self.sorted_channel_data:
-            plt.scatter(channel["channel_pos"][0], channel["channel_pos"][1], s=10, c='black')
-            plt.text(channel["channel_pos"][0], channel["channel_pos"][1], 
-                    f"{channel['chip_title']}-{channel['chip_index']}, {channel['idx']}", fontsize=10)
-
-        plt.savefig(os.path.join(self.figure_save_path, "layout.png"), format="png", dpi=300)
-        plt.close('all')

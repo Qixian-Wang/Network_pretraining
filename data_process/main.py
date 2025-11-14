@@ -27,7 +27,7 @@ psth_cfg = {
 
 plotting_cfg = {
     "correlation_matrix": {"execute": False, "duration": 180},
-    "propagation_map": {"execute": True, "rate_threshold": 20, "max_time_delay": 0.2},
+    "propagation_map": {"execute": False, "rate_threshold": 20, "max_time_delay": 0.2},
 }
 
 pipeline_cfg = {
