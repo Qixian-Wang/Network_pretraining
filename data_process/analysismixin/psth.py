@@ -9,9 +9,9 @@ class PsthAnalysisMixin:
     def compute_psth(self, config):
         visualize_time_bias = config["visualize_time_bias"]
         visualize_duration = config["visualize_duration"]
+        bin_size = config["bin_size"]
 
         num_rows = len(self.stimulation_init_time) // configs.num_patterns
-        bin_size = 0.001
 
         start_time_list = []
         end_time_list = []
@@ -30,12 +30,12 @@ class PsthAnalysisMixin:
 
                 aligned_data.append(self._collect_window_spikes(start_time, end_time))
             
-            centers, rates, rates_list = self._compute_psth(aligned_data, window_len=visualize_duration, n_channels=len(self.spike_train), bin_size=bin_size)
+            centers, trail_average_rates, channel_average_rates_list = self._compute_psth(aligned_data, window_len=visualize_duration, n_channels=len(self.spike_train), bin_size=bin_size)
 
             centers_list.append(centers)
-            rates_list.append(rates)
+            rates_list.append(trail_average_rates)
 
-            similarity = self._compute_ingroup_similarity(rates_list, visualize_time_bias, bin_size)
+            similarity = self._compute_ingroup_similarity(channel_average_rates_list, visualize_time_bias, bin_size)
 
 
         plot_spike_train_with_psth(
@@ -70,15 +70,15 @@ class PsthAnalysisMixin:
     def _compute_psth(self, aligned_data, window_len, n_channels, bin_size=0.01):
         edges = np.arange(0, window_len + 1e-12, bin_size)
         centers = (edges[:-1] + edges[1:]) / 2.0
-        rates_list = []
+        channel_average_rates_list = []
 
         for data in aligned_data:
             counts, _ = np.histogram(data, bins=edges)
-            rates = counts.astype(float) / (n_channels * bin_size)  # Hz
-            rates_list.append(rates)
+            channel_average_rates = counts.astype(float) / (n_channels * bin_size)  # Hz
+            channel_average_rates_list.append(channel_average_rates)
 
-        rates = np.mean(rates_list, axis=0)
-        return centers, rates, rates_list
+        trail_average_rates = np.mean(channel_average_rates_list, axis=0)
+        return centers, trail_average_rates, channel_average_rates_list
 
     def _compute_ingroup_similarity(self, rates_list, visualize_time_bias, bin_size):
         similarity = []

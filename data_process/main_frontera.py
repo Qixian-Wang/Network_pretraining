@@ -44,18 +44,28 @@ if __name__ == "__main__":
     size = comm.Get_size()
 
     data_paths = [
-        "/scratch1/10197/qxwang/recording_data/Experiment_10_30/spontaneous1",
-        
-        "/scratch1/10197/qxwang/recording_data/Experiment_10_30/spontaneous2",
-        "/scratch1/10197/qxwang/recording_data/Experiment_10_30/train1",
-        "/scratch1/10197/qxwang/recording_data/Experiment_10_30/train2",
-        "/scratch1/10197/qxwang/recording_data/Experiment_10_30/train3",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous1",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous2",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous3",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain1",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain2",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain3",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain4",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain5",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train0",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train1",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train2",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train3",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train4",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train5",
+        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train6",
     ]
 
     # data_paths = ["/Volumes/Disk_qw/test_data"]
-    excluded_channels = ['A-028', 'A-029', 'A-030', 'A-031', 'B-000', 'B-010', 'B-019', 'B-022', 'B-031', 'C-003', 'C-006', 'C-007', 'C-030', 'D-004', 'D-011', 'D-014', 'D-016', 'D-017', 'D-018', 'D-019', 'D-020', 'D-021', 'D-022', 'D-023', 'D-024', 'D-025', 'D-026', 'D-030', 'A-000']
+    excluded_channels = ['A-005', 'A-020', 'A-031', 'B-002', 'B-008', 'B-011', 'B-021', 'B-028', 'B-030', 'C-016', 'C-024', 'D-004', 'D-016', 'D-017', 'D-018']
 
-    session_names = ["spontaneous1", "spontaneous2", "train1", "train2", "train3"]
+
+    session_names = ["spontaneous1", "spontaneous2", "spontaneous3", "pretrain1", "pretrain2", "pretrain3", "pretrain4", "pretrain5", "train0", "train1", "train2", "train3", "train4", "train5", "train6"]
     excluded_channels = [_bank_encode(channel) for channel in excluded_channels]
 
     data_path = data_paths[rank]

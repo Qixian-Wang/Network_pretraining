@@ -4,8 +4,12 @@ from pydantic import BaseModel, ConfigDict
 class Configs(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
+    # Mea type
+    mea_type: str = "128_rhs"
+    # mea_type: str = "512_long"
+
     # Stimulation parameters
-    excluded_channels: list[str] = ['A-000', 'A-003', 'A-028', 'A-029', 'A-030', 'B-010', 'B-019', 'B-022', 'B-031', 'C-003', 'C-006', 'C-007', 'C-020', 'C-022', 'D-016', 'D-017', 'D-018', 'D-019', 'D-020', 'D-021', 'D-022', 'D-023', 'D-025', 'D-026', 'D-030', 'A-015']
+    excluded_channels: list[str] = ['A-031', 'B-002', 'B-018', 'C-031', 'D-016', 'D-017', 'D-018']
 
     reading_channels: list[str] = [
                         'A-000', 'A-001', 'A-002', 'A-003', 'A-004', 'A-005', 'A-006', 'A-007', 
@@ -25,11 +29,12 @@ class Configs(BaseModel):
                         'C-016', 'C-017', 'C-018', 'C-019', 'C-020', 'C-021', 'C-022', 'C-023', 
                         'C-024', 'C-025', 'C-026', 'C-027', 'C-028', 'C-029', 'C-030', 'C-031'
                         ]
-
-    session_names: list[str] = ["train3"]
+ 
+    session_names: list[str] = ["spontaneous1", "spontaneous2", "spontaneous3", "train0", "train1", "train2", "train3", "train4", "train5", "train6"]
 
     # Pattern parameters
-    num_patterns: int = 6
+    num_pretrain_patterns: int = 4
+    num_train_patterns: int = 6
     
     component: dict[int, list[int]] = {
         0: [0, 1, 2, 3, 8, 9, 10, 11, 16, 17, 18, 19, 24, 25, 26, 27],
@@ -38,7 +43,7 @@ class Configs(BaseModel):
         3: [100, 101, 102, 103, 108, 109, 110, 111, 116, 117, 118, 119, 124, 125, 126, 127],
     }
 
-    pattern_dict: dict[int, list[int]] = {
+    train_pattern_dict: dict[int, list[int]] = {
         0: component[0]+component[1],
         1: component[0]+component[2],
         2: component[0]+component[3],
@@ -46,14 +51,20 @@ class Configs(BaseModel):
         4: component[1]+component[3],
         5: component[2]+component[3],
     }
-
+    
+    pretrain_pattern_dict: dict[int, list[int]] = {
+        0: component[0],
+        1: component[1],
+        2: component[2],
+        3: component[3],
+    }
+    
     stim_interval: float = 4
 
     # File paths
-    mea_yaml_path: str = "/Users/aia/Desktop/cppcode/Intan-RHX/tcp/data_process/mea_topology/128_rhs.yaml"
-    data_path: str = "/Users/aia/Desktop/data/10_8_data/spike_train"
+    mea_yaml_path: str = f"/Users/aia/Desktop/cppcode/Intan-RHX/tcp/data_process/mea_topology/{mea_type}.yaml"
+    data_path: str = "/Users/aia/Desktop/data/11_22_data_sample4/spike_train"
     figure_save_path: str = "figures"
-
 
     
 configs = Configs()
