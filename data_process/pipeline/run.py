@@ -12,6 +12,8 @@ from visualization.correlation_matrix import plot_correlation_matrix
 from visualization.dimension_reduction import plot_silhouette_score
 from visualization.correlation_matrix import plot_correlation_matrix
 
+from config_file import configs
+
 
 class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalysisMixin, PropagationAnalysisMixin, OrganizeChannelsMixIn):
 
@@ -27,35 +29,6 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
 
         os.makedirs(self.figure_save_path, exist_ok=True)
 
-        self.compute_firing_rate_flag = False
-        self.dim_reduction_flag = False
-        self.psth_flag = False
-        self.correlation_matrix_flag = False
-        self.propagation_map_flag = False
-
-        if self.cfg["process"]["firing_rate"]["method"] is not None:
-            self.compute_firing_rate_flag = True
-            self.firing_rate_config = self.cfg["process"]["firing_rate"]
-
-        if self.cfg["process"]["dimension_reduction"]["execute"]:
-            self.dim_reduction_flag = True
-            self.dim_reduction_config = self.cfg["process"]["dimension_reduction"]
-            self.silhouette_score_tsne = []
-            self.silhouette_score_pca = []
-
-        if self.cfg["process"]["psth"]["execute"]:
-            self.psth_flag = True
-            self.psth_config = self.cfg["process"]["psth"]
-
-        if self.cfg["process"]["additional_plotting"]["correlation_matrix"]["execute"]:
-            self.correlation_matrix_flag = True
-            self.duration = self.correlation_matrix_config["duration"]
-            self.correlation_matrix_config = self.cfg["process"]["additional_plotting"]["correlation_matrix"]
-
-        if self.cfg["process"]["additional_plotting"]["propagation_map"]["execute"]:
-            self.propagation_map_flag = True
-            self.propagation_map_config = self.cfg["process"]["additional_plotting"]["propagation_map"]
-
 
     def run(self):
         print("Loading data...")
@@ -68,22 +41,32 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
             self.spike_train = dataset.spike_train
             self.stimulation_init_time = dataset.stimulation_init_time
 
-            if self.compute_firing_rate_flag:
-                self.compute_firing_rate(self.firing_rate_config)
+            if self.session_name.startswith("train"):
+                self.num_patterns = configs.num_train_patterns
+                self.pattern_dict = configs.train_pattern_dict
+            else:
+                self.num_patterns = configs.num_pretrain_patterns
+                self.pattern_dict = configs.pretrain_pattern_dict
 
-            if self.dim_reduction_flag and self.session_name.startswith("train"):
-                self.compute_dimension_reduction(self.dim_reduction_config)
-            
-            if self.psth_flag and self.session_name.startswith("train"):
-                self.compute_psth(self.psth_config)
 
-            if self.correlation_matrix_flag and self.session_name.startswith("spontaneous"):
-                plot_correlation_matrix(self.figure_save_path, self.session_name, self.firing_rate_result, self.step_size, self.num_channels, self.duration)
+            self.compute_firing_rate(self.self.cfg["process"]["firing_rate"])
 
-            if self.propagation_map_flag and self.session_name.startswith("train"):
-                self.compute_propagation(self.propagation_map_config)
-        
-        
+            if "dimension_reduction" in self.cfg["optional_processes"]:
+                self.silhouette_score_tsne = []
+                self.silhouette_score_pca = []
+                self.compute_dimension_reduction(self.cfg["optional_processes"]["dimension_reduction"])
+
+            if "psth" in self.cfg["optional_processes"] and self.session_name.startswith("train") or self.session_name.startswith("pretrain"):
+                self.compute_psth(self.cfg["optional_processes"]["psth"])
+
+            if "correlation_matrix" in self.cfg["optional_processes"] and self.session_name.startswith("spontaneous"):
+                duration = self.cfg["optional_processes"]["correlation_matrix"]["duration"]
+                plot_correlation_matrix(self.figure_save_path, self.session_name, self.firing_rate_result, self.step_size, self.num_channels, duration)
+
+            if "propagation_map" in self.cfg["optional_processes"] and self.session_name.startswith("train"):\
+                self.compute_propagation(self.cfg["optional_processes"]["propagation_map"])
+
+
         if self.dim_reduction_flag:
             plot_silhouette_score(self.figure_save_path, self.silhouette_score_tsne, self.silhouette_score_pca)
 
