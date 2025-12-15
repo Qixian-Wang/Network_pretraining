@@ -31,7 +31,7 @@ class DimensionReductionMixIn(TruncateDataMixIn):
         self.organized_data = truncated_data.reshape(truncated_data.shape[0], -1)
 
         num_stim = truncated_data.shape[0]
-        self.labels = np.tile(np.arange(configs.num_patterns), num_stim // configs.num_patterns)
+        self.labels = np.tile(np.arange(self.num_patterns), num_stim // self.num_patterns)
 
         if "tsne" in method:
             silhouette_score = self.tsne_analysis()
@@ -62,13 +62,13 @@ class DimensionReductionMixIn(TruncateDataMixIn):
         return silhouette
 
 
-    def pca_analysis(self):
+    def pca_analysis(self): 
         pca = PCA(n_components=10)
         X_pca = pca.fit_transform(self.organized_data)
         silhouette = silhouette_score(X_pca, self.labels)
         print(f"PCA Silhouette Score for {self.session_name}: {silhouette:.3f}", flush=True)
  
         plot_pca_explained_variance(self.figure_save_path, self.session_name, pca)
-        plot_results_with_clusters(self.figure_save_path, self.session_name, X_pca, configs.num_patterns, test_name="PCA")
+        plot_results_with_clusters(self.figure_save_path, self.session_name, X_pca, self.num_patterns, test_name="PCA")
 
         return silhouette

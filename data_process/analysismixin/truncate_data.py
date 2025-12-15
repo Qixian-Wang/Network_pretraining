@@ -1,14 +1,13 @@
 import numpy as np
-from config_file import configs
 
 class TruncateDataMixIn:
     def truncate_data(self, data, analysis_start_time, analysis_duration):
         num_stimulation = len(self.stimulation_init_time)
         starting_data_size = int(analysis_start_time / self.step_size)
         truncated_data_size = int(analysis_duration / self.step_size)
-        complete_cycles = num_stimulation // configs.num_patterns
+        complete_cycles = num_stimulation // self.num_patterns
 
-        print(f"Stimulation number: {num_stimulation} stimulations; patterns: {configs.num_patterns}; complete_cycles: {complete_cycles}", flush=True)
+        print(f"Stimulation number: {num_stimulation} stimulations; patterns: {self.num_patterns}; complete_cycles: {complete_cycles}", flush=True)
         
         truncated_data_analyze = []
         for stimulation_idx in range(num_stimulation):

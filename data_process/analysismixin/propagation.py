@@ -3,8 +3,6 @@ import numpy as np
 from analysismixin.truncate_data import TruncateDataMixIn
 from visualization.propagation import plot_propagation_map
 
-from config_file import configs
-
 class PropagationAnalysisMixin(TruncateDataMixIn):
     def compute_propagation(self, config):
         analysis_duration = config["max_time_delay"]
@@ -13,8 +11,8 @@ class PropagationAnalysisMixin(TruncateDataMixIn):
         data = self.firing_rate_result["spike_rates"]
         truncated_data = self.truncate_data(data, 0, analysis_duration)
 
-        for pattern_idx in range(configs.num_patterns):
-            data_for_pattern = [truncated_data[i] for i in range(len(truncated_data)) if i % configs.num_patterns == pattern_idx]
+        for pattern_idx in range(self.num_patterns):
+            data_for_pattern = [truncated_data[i] for i in range(len(truncated_data)) if i % self.num_patterns == pattern_idx]
 
             for data_idx, data_segment in enumerate(data_for_pattern):
                 time_arrival_list = []

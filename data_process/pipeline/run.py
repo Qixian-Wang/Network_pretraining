@@ -11,6 +11,7 @@ from data_io.mea_layout import OrganizeChannelsMixIn
 from visualization.correlation_matrix import plot_correlation_matrix
 from visualization.dimension_reduction import plot_silhouette_score
 from visualization.correlation_matrix import plot_correlation_matrix
+from visualization.psth import plot_similarity
 
 from config_file import configs
 
@@ -28,6 +29,10 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
         self.reading_channels = cfg["io"]["reading_channels"]
 
         os.makedirs(self.figure_save_path, exist_ok=True)
+        
+        self.silhouette_score_tsne = []
+        self.silhouette_score_pca = []
+        self.global_similarity_list = []
 
 
     def run(self):
@@ -49,14 +54,12 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
                 self.pattern_dict = configs.pretrain_pattern_dict
 
 
-            self.compute_firing_rate(self.self.cfg["process"]["firing_rate"])
+            self.compute_firing_rate(self.cfg["necessary_processes"]["firing_rate"])
 
-            if "dimension_reduction" in self.cfg["optional_processes"]:
-                self.silhouette_score_tsne = []
-                self.silhouette_score_pca = []
+            if "dimension_reduction" in self.cfg["optional_processes"] and self.session_name.startswith("train"):
                 self.compute_dimension_reduction(self.cfg["optional_processes"]["dimension_reduction"])
 
-            if "psth" in self.cfg["optional_processes"] and self.session_name.startswith("train") or self.session_name.startswith("pretrain"):
+            if "psth" in self.cfg["optional_processes"] and (self.session_name.startswith("train") or self.session_name.startswith("pretrain")):
                 self.compute_psth(self.cfg["optional_processes"]["psth"])
 
             if "correlation_matrix" in self.cfg["optional_processes"] and self.session_name.startswith("spontaneous"):
@@ -67,7 +70,10 @@ class Pipeline(DimensionReductionMixIn, MovingAverageFiringRateMixIn, PsthAnalys
                 self.compute_propagation(self.cfg["optional_processes"]["propagation_map"])
 
 
-        if self.dim_reduction_flag:
+        if "dimension_reduction" in self.cfg["optional_processes"]:
             plot_silhouette_score(self.figure_save_path, self.silhouette_score_tsne, self.silhouette_score_pca)
+        
+        if "psth" in self.cfg["optional_processes"]:
+            plot_similarity(self.global_similarity_list, self.figure_save_path, self.num_patterns)
 
         return self

@@ -9,8 +9,8 @@ class Configs(BaseModel):
     # mea_type: str = "512_long"
 
     # Stimulation parameters
-    excluded_channels: list[str] = ['A-031', 'B-002', 'B-018', 'C-031', 'D-016', 'D-017', 'D-018']
-
+    excluded_channels: list[str] = ['A-005', 'A-020', 'A-031', 'B-002', 'B-011', 'B-021', 'C-024', 'D-004', 'D-016', 'D-017', 'D-018']
+    
     reading_channels: list[str] = [
                         'A-000', 'A-001', 'A-002', 'A-003', 'A-004', 'A-005', 'A-006', 'A-007', 
                         'A-008', 'A-009', 'A-010', 'A-011', 'A-012', 'A-013', 'A-014', 'A-015', 
@@ -30,7 +30,7 @@ class Configs(BaseModel):
                         'C-024', 'C-025', 'C-026', 'C-027', 'C-028', 'C-029', 'C-030', 'C-031'
                         ]
  
-    session_names: list[str] = ["spontaneous1", "spontaneous2", "spontaneous3", "train0", "train1", "train2", "train3", "train4", "train5", "train6"]
+    session_names: list[str] = ["pretrain1"]
 
     # Pattern parameters
     num_pretrain_patterns: int = 4
@@ -58,12 +58,12 @@ class Configs(BaseModel):
         2: component[2],
         3: component[3],
     }
-    
-    stim_interval: float = 4
+
+    pretrain_stimulation_repetition: int = 4
 
     # File paths
     mea_yaml_path: str = f"/Users/aia/Desktop/cppcode/Intan-RHX/tcp/data_process/mea_topology/{mea_type}.yaml"
-    data_path: str = "/Users/aia/Desktop/data/11_22_data_sample4/spike_train"
+    data_path: str = "/Users/aia/Desktop/data/11_25_data_sample4/spike_train"
     figure_save_path: str = "figures"
 
     
