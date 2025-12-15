@@ -20,6 +20,7 @@ def plot_results_with_clusters(figure_save_path, session_name, results, num_patt
     result_path = os.path.join(figure_save_path, f"{test_name}_figures")
     os.makedirs(result_path, exist_ok=True)
 
+    point_size = 30
     patterns_repo = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K']
     pattern_colors_repo = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 'pink', 'gray', 'black', 'yellow', 'cyan']
 
@@ -30,7 +31,7 @@ def plot_results_with_clusters(figure_save_path, session_name, results, num_patt
     
     num_points = results.shape[0]
     colors = plt.cm.viridis(np.linspace(0, 1, num_points))
-    scatter1 = ax1.scatter(results[:, 0], results[:, 1], c=colors, alpha=0.7, s=50)
+    scatter1 = ax1.scatter(results[:, 0], results[:, 1], c=colors, alpha=0.7, s=point_size)
     ax1.set_title(f'{test_name} - {session_name} (Time Sequence)')
     ax1.set_xlabel(f'{test_name} Component 1')
     ax1.set_ylabel(f'{test_name} Component 2')
@@ -40,19 +41,32 @@ def plot_results_with_clusters(figure_save_path, session_name, results, num_patt
     cbar.set_label('Time Sequence')
     
     for i in range(num_patterns):
+        points_x = results[i::num_patterns, 0]
+        points_y = results[i::num_patterns, 1]
         ax2.scatter(
-            results[i::num_patterns, 0],
-            results[i::num_patterns, 1],
+            points_x,
+            points_y,
             label=f"Pattern {patterns[i]}",
             alpha=0.8,
+            s=point_size,
             color = pattern_colors[i]
         )
+
+        for idx, (pos_x, pos_y) in enumerate(zip(points_x, points_y)):
+            ax2.text(pos_x, 
+                     pos_y, 
+                     idx, 
+                     fontsize=6, 
+                     ha='center',
+                     va='center')
     
     ax2.set_title(f'{test_name} - {session_name} (Feature-based Clusters)')
     ax2.set_xlabel(f'{test_name} Component 1')
     ax2.set_ylabel(f'{test_name} Component 2')
     ax2.legend()
     ax2.grid(True, alpha=0.3)
+    # ax2.set_ylim(-250, 250)
+    # ax2.set_xlim(-1000, 0)
     
     plt.tight_layout()
     plt.savefig(os.path.join(result_path, f'{session_name}_comparison.png'), format='png', dpi=300)

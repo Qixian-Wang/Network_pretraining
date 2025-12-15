@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import pickle
 from typing import Optional, Sequence
 
+from config_file import configs
 
 @dataclass
 class Dataset:
@@ -24,6 +25,10 @@ class DataLoader:
                 with open(spike_train_path, "rb") as f:
                     spike_train = pickle.load(f)
                     session_name = file.split("_train")[1].split(".pkl")[0]
+                    
+                    if session_name not in configs.session_names:
+                        continue
+
                     dataset.session_name = session_name
                     dataset.spike_train = spike_train
                     if session_name.startswith("train") or session_name.startswith("pretrain"):

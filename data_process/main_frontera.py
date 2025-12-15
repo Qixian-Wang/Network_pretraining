@@ -5,14 +5,12 @@ import numpy as np
 import pickle
 
 from miv.io.intan.data import DataIntan
+from miv.io.openephys import Data, DataManager
+
 from miv.signal.filter import ButterBandpass
 from miv.signal.spike import ThresholdCutoff
 from miv.core.operator.policy import StrictMPIRunner
 from miv.core.pipeline import Pipeline
-
-comm = MPI.COMM_WORLD
-rank = comm.Get_rank()
-size = comm.Get_size()
 
 def _bank_encode(channel_name):
     bank = channel_name[0].upper()
@@ -39,33 +37,17 @@ def extract_stimulation_init(digital_in_stamps):
 
 
 if __name__ == "__main__":
+    device = "OpenEphys"
+
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
 
-    data_paths = [
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous1",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous2",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/spontaneous3",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain1",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain2",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain3",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain4",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/pretrain5",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train0",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train1",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train2",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train3",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train4",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train5",
-        "/scratch2/10197/qxwang/recording_data/Experiment_11_24/train6",
-    ]
-
-    # data_paths = ["/Volumes/Disk_qw/test_data"]
-    excluded_channels = ['A-005', 'A-020', 'A-031', 'B-002', 'B-008', 'B-011', 'B-021', 'B-028', 'B-030', 'C-016', 'C-024', 'D-004', 'D-016', 'D-017', 'D-018']
-
-
+    data_folder = "/scratch2/10197/qxwang/recording_data/Experiment_11_28"
     session_names = ["spontaneous1", "spontaneous2", "spontaneous3", "pretrain1", "pretrain2", "pretrain3", "pretrain4", "pretrain5", "train0", "train1", "train2", "train3", "train4", "train5", "train6"]
+    data_paths = [os.path.join(data_folder, session_name) for session_name in session_names]
+
+    excluded_channels = ['A-005', 'A-031', 'B-002', 'B-018', 'B-028', 'B-029', 'B-030', 'C-031', 'D-016', 'D-017', 'D-018', 'D-020']
     excluded_channels = [_bank_encode(channel) for channel in excluded_channels]
 
     data_path = data_paths[rank]
@@ -74,7 +56,10 @@ if __name__ == "__main__":
     spike_train_save_path = f"spike_train/"
     pipline_data_save_path = f"results/{session_name}"
 
-    data = DataIntan(data_path)
+    if device == "Intan":
+        data = DataIntan(data_path)
+    else:
+        data = Data(data_path)
 
     bandpass_filter = ButterBandpass(lowcut=200, highcut=1600, order=4)
     spike_detection = ThresholdCutoff(exclude_channels=excluded_channels, cutoff=5.0) 
